@@ -10,14 +10,16 @@ type LogEntry =
   | { kind: "system"; text: string }
   | { kind: "assistant"; lines: string[]; typed: string[] };
 
+const initialLog: LogEntry[] = [
+  {
+    kind: "system",
+    text: "identity.terminal · v1.0 · read-only · stream established",
+  },
+];
+
 export default function AITerminal() {
   const [query, setQuery] = useState("");
-  const [log, setLog] = useState<LogEntry[]>([
-    {
-      kind: "system",
-      text: "identity.terminal · v1.0 · read-only · stream established",
-    },
-  ]);
+  const [log, setLog] = useState<LogEntry[]>(initialLog);
   const [busy, setBusy] = useState(false);
   const { setFocus } = useFocus();
   const listRef = useRef<HTMLDivElement>(null);
@@ -81,6 +83,13 @@ export default function AITerminal() {
     setTimeout(tick, 260);
   };
 
+  const clear = () => {
+    if (busy) return;
+    setLog(initialLog);
+    setQuery("");
+    inputRef.current?.focus();
+  };
+
   const submit = (value?: string) => {
     const q = (value ?? query).trim();
     if (!q || busy) return;
@@ -129,8 +138,26 @@ export default function AITerminal() {
           </span>
         </div>
         <div className="flex items-center gap-3 font-mono text-[11px]">
-          <span className="text-white/30">TCP · 443</span>
-          <span className="text-white/20">·</span>
+          <button
+            type="button"
+            onClick={clear}
+            disabled={busy || log.length <= 1}
+            className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/[0.03] px-2 py-0.5 text-white/55 transition-colors hover:border-white/25 hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-white/10 disabled:hover:bg-white/[0.03] disabled:hover:text-white/55"
+            aria-label="Clear terminal"
+            title="Clear terminal"
+          >
+            <svg viewBox="0 0 12 12" width="9" height="9" fill="none" aria-hidden>
+              <path
+                d="M2.5 2.5l7 7M9.5 2.5l-7 7"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+              />
+            </svg>
+            clear
+          </button>
+          <span className="hidden text-white/30 sm:inline">TCP · 443</span>
+          <span className="hidden text-white/20 sm:inline">·</span>
           <span className={busy ? "text-amber-300" : "text-emerald-400"}>
             {busy ? "thinking…" : "ready"}
           </span>

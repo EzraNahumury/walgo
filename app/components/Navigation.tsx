@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import MagneticButton from "./MagneticButton";
 
 const items = [
@@ -15,32 +15,70 @@ const items = [
 export default function Navigation() {
   const [active, setActive] = useState<string>("identity");
   const [scrolled, setScrolled] = useState(false);
+  const [pill, setPill] = useState<{ left: number; width: number } | null>(
+    null
+  );
+  const [pillReady, setPillReady] = useState(false);
+
+  const listRef = useRef<HTMLUListElement>(null);
+  const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
+    const getSections = () =>
+      items
+        .map((i) => document.getElementById(i.id))
+        .filter((el): el is HTMLElement => el !== null);
 
-    const sections = items
-      .map((i) => document.getElementById(i.id))
-      .filter((el): el is HTMLElement => el !== null);
+    const update = () => {
+      setScrolled(window.scrollY > 12);
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible?.target?.id) setActive(visible.target.id);
-      },
-      { rootMargin: "-40% 0px -50% 0px", threshold: [0.1, 0.3, 0.6] }
-    );
-    sections.forEach((s) => observer.observe(s));
+      const trigger = window.scrollY + window.innerHeight * 0.35;
+      const sections = getSections();
+      if (sections.length === 0) return;
 
+      let currentId = sections[0].id;
+      for (const s of sections) {
+        if (s.offsetTop <= trigger) currentId = s.id;
+      }
+
+      const docBottom = window.scrollY + window.innerHeight;
+      const pageBottom = document.documentElement.scrollHeight - 2;
+      if (docBottom >= pageBottom) {
+        currentId = sections[sections.length - 1].id;
+      }
+
+      setActive((prev) => (prev === currentId ? prev : currentId));
+    };
+
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      observer.disconnect();
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
     };
   }, []);
+
+  const measurePill = () => {
+    const listEl = listRef.current;
+    const btn = itemRefs.current[active];
+    if (!listEl || !btn) return;
+    const listRect = listEl.getBoundingClientRect();
+    const btnRect = btn.getBoundingClientRect();
+    setPill({
+      left: btnRect.left - listRect.left,
+      width: btnRect.width,
+    });
+  };
+
+  useLayoutEffect(() => {
+    measurePill();
+    requestAnimationFrame(() => setPillReady(true));
+    const onResize = () => measurePill();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active]);
 
   const onJump = (id: string) => {
     const el = document.getElementById(id);
@@ -63,26 +101,53 @@ export default function Navigation() {
           <span>ID · online</span>
         </div>
         <div className="mx-1 h-5 w-px bg-white/10" />
-        <ul className="flex items-center gap-1">
+
+        <ul
+          ref={listRef}
+          className="relative flex items-center gap-1"
+        >
+          {pill && (
+            <span
+              aria-hidden
+              className="pointer-events-none absolute top-0 bottom-0 rounded-full"
+              style={{
+                left: pill.left,
+                width: pill.width,
+                backgroundColor: "rgba(255,255,255,0.08)",
+                border: "1px solid rgba(255,255,255,0.12)",
+                transition: pillReady
+                  ? "left 420ms cubic-bezier(0.22,1,0.36,1), width 420ms cubic-bezier(0.22,1,0.36,1)"
+                  : "none",
+              }}
+            />
+          )}
+
           {items.map((it) => (
             <li key={it.id}>
               <button
-                onClick={() => onJump(it.id)}
-                className={[
-                  "relative rounded-full px-3 py-1.5 text-[13px] transition-colors",
-                  active === it.id
-                    ? "text-white"
-                    : "text-white/55 hover:text-white/90",
-                ].join(" ")}
+                type="button"
+                ref={(el) => {
+                  itemRefs.current[it.id] = el;
+                }}
+                onClick={(e) => {
+                  onJump(it.id);
+                  e.currentTarget.blur();
+                }}
+                style={{
+                  backgroundColor: "transparent",
+                  color:
+                    active === it.id
+                      ? "rgba(255,255,255,1)"
+                      : "rgba(255,255,255,0.55)",
+                }}
+                className="relative rounded-full px-3 py-1.5 text-[13px] transition-colors hover:!text-white/90 focus:outline-none focus-visible:ring-1 focus-visible:ring-white/25"
               >
-                {active === it.id && (
-                  <span className="absolute inset-0 rounded-full border border-white/10 bg-white/[0.08]" />
-                )}
-                <span className="relative">{it.label}</span>
+                {it.label}
               </button>
             </li>
           ))}
         </ul>
+
         <div className="mx-1 h-5 w-px bg-white/10" />
         <MagneticButton
           variant="ghost"

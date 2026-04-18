@@ -41,12 +41,12 @@ export default function Experience() {
                     className="group relative grid grid-cols-1 gap-2 rounded-xl px-4 py-5 pl-14 transition-colors hover:bg-white/[0.02] md:grid-cols-[160px_1fr_72px] md:gap-8"
                   >
                     <span className="spine-node" style={{ top: "38px" }} />
-                    <div className="absolute left-[50px] top-[30px] hidden h-5 w-5 items-center justify-center text-[color:var(--color-accent-2)] md:flex">
-                      <Icon kind={icon} />
-                    </div>
 
-                    <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-white/55">
-                      {e.period}
+                    <div className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-white/55">
+                      <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center text-[color:var(--color-accent-2)]">
+                        <Icon kind={icon} />
+                      </span>
+                      <span>{e.period}</span>
                     </div>
                     <div>
                       <h3 className="text-[19px] font-medium leading-snug tracking-tight text-white md:text-[21px]">

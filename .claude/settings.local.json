@@ -8,7 +8,12 @@
       "Bash(curl -sI http://localhost:3000/)",
       "Bash(curl -s http://localhost:3000/)",
       "Bash(curl *)",
-      "Bash(taskkill *)"
+      "Bash(taskkill *)",
+      "Bash(cp \"C:/Users/ASUS ROG/.claude/image-cache/f76a7064-3868-4a25-ac15-855f78e34754/6.png\" C:/walgo/public/issuers/google-cloud.png)",
+      "Bash(cp \"C:/Users/ASUS ROG/.claude/image-cache/f76a7064-3868-4a25-ac15-855f78e34754/7.png\" C:/walgo/public/issuers/dicoding.png)",
+      "Bash(cp \"C:/Users/ASUS ROG/.claude/image-cache/f76a7064-3868-4a25-ac15-855f78e34754/8.png\" C:/walgo/public/issuers/oracle.png)",
+      "Bash(cp \"C:/Users/ASUS ROG/.claude/image-cache/f76a7064-3868-4a25-ac15-855f78e34754/9.png\" C:/walgo/public/issuers/cisco.png)",
+      "Bash(cp \"C:/Users/ASUS ROG/.claude/image-cache/f76a7064-3868-4a25-ac15-855f78e34754/10.png\" C:/walgo/public/issuers/bangkit.png)"
     ]
   }
 }

@@ -28,9 +28,13 @@ export default function Scramble({
   speed = 42,
   lockDelay = 10,
 }: Props) {
-  const [display, setDisplay] = useState(() => initialScramble(text));
+  const [display, setDisplay] = useState(text);
   const ref = useRef<HTMLSpanElement>(null);
   const startedRef = useRef(false);
+
+  useEffect(() => {
+    setDisplay(initialScramble(text));
+  }, [text]);
 
   useEffect(() => {
     const el = ref.current;

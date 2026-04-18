@@ -577,6 +577,37 @@ body {
   will-change: transform, opacity;
 }
 
+/* Skill tile float animation */
+@keyframes skill-float {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  25%      { transform: translate3d(1px, -3px, 0) rotate(-1.2deg); }
+  50%      { transform: translate3d(0, -5px, 0) rotate(0deg); }
+  75%      { transform: translate3d(-1px, -2px, 0) rotate(1.2deg); }
+}
+.skill-tile {
+  animation: skill-float var(--float-dur, 4s) ease-in-out infinite;
+  animation-delay: var(--float-delay, 0s);
+  will-change: transform;
+}
+.skill-tile:hover {
+  animation-play-state: paused;
+}
+.skill-tile .skill-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    120% 120% at 50% 50%,
+    var(--skill-color, rgba(255, 255, 255, 0.5)) 0%,
+    transparent 65%
+  );
+  transition: opacity 260ms ease;
+  mix-blend-mode: screen;
+}
+.skill-tile:hover .skill-glow { opacity: 0.35; }
+
 /* Reduce motion */
 @media (prefers-reduced-motion: reduce) {
   *,
