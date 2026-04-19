@@ -41,13 +41,15 @@ export const identity = {
     { label: "LinkedIn", href: "https://www.linkedin.com/in/ezranhmry/" },
     { label: "Instagram", href: "https://www.instagram.com/ezranhmry_/" },
   ],
-  // Replace after publishing the site to Walrus.
   chain: {
     network: "Walrus Mainnet",
-    blobId: "0xA91F…7E2D",
-    hash: "sha256:9b4f8c1e2aa7…",
-    timestamp: "2026-04-18T00:00:00Z",
-    explorer: "https://walruscan.com/",
+    ownerAddress:
+      "0xe7d9532d086478c1e1cc6914e74929814118e4de35ffd8b9a326a0bd8ef91d11",
+    ownerAddressShort: "0xe7d9…91d11",
+    handleDomain: "ezranhmry.wal.app",
+    timestamp: "2026-04-19T00:00:00Z",
+    explorer:
+      "https://suiscan.xyz/mainnet/account/0xe7d9532d086478c1e1cc6914e74929814118e4de35ffd8b9a326a0bd8ef91d11",
   },
 };
 

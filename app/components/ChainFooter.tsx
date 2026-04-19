@@ -57,6 +57,7 @@ export default function ChainFooter() {
   const { chain, name, email, socials } = identity;
   const [verifying, setVerifying] = useState(false);
   const [verified, setVerified] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const runVerify = () => {
     if (verifying || verified) return;
@@ -67,10 +68,26 @@ export default function ChainFooter() {
     }, 1800);
   };
 
+  const copyAddress = async () => {
+    try {
+      await navigator.clipboard.writeText(chain.ownerAddress);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = chain.ownerAddress;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    }
+  };
+
   return (
     <footer id="chain" className="relative mx-auto max-w-6xl px-6 pb-24 pt-14">
-      <Reveal>
-        <GlassPanel strong className="relative overflow-hidden p-0">
+      <GlassPanel strong className="relative overflow-hidden p-0">
           {/* bg grid */}
           <div
             aria-hidden
@@ -81,36 +98,102 @@ export default function ChainFooter() {
 
           {/* Hero block */}
           <div className="relative px-6 py-12 text-center md:px-16 md:py-16">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[color:var(--color-accent-hot)]/25 bg-[color:var(--color-accent-hot)]/[0.08] px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.24em] text-[color:var(--color-accent-hot)]">
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-[color:var(--color-accent-hot)] pulse-dot" />
-              permanent record
-            </div>
+            <Reveal>
+              <div className="inline-flex items-center gap-2 rounded-full border border-[color:var(--color-accent-hot)]/25 bg-[color:var(--color-accent-hot)]/[0.08] px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.24em] text-[color:var(--color-accent-hot)]">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-[color:var(--color-accent-hot)] pulse-dot" />
+                permanent record
+              </div>
+            </Reveal>
 
-            <h2 className="mx-auto mt-6 max-w-3xl text-balance font-[var(--font-space)] text-[clamp(30px,5vw,52px)] font-semibold leading-[1.05] tracking-[-0.025em] text-white">
-              This identity lives on{" "}
-              <span className="text-accent-gradient">Walrus</span>. Forever.
-            </h2>
+            <Reveal delay={180}>
+              <h2 className="mx-auto mt-6 max-w-3xl text-balance font-[var(--font-space)] text-[clamp(30px,5vw,52px)] font-semibold leading-[1.05] tracking-[-0.025em] text-white">
+                This identity lives on{" "}
+                <span className="text-accent-gradient">Walrus</span>. Forever.
+              </h2>
+            </Reveal>
 
-            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-[1.6] text-white/55">
-              No server. No database. The record below is content-addressed,
-              tamper-evident, and readable by anyone holding the blob ID.
-            </p>
+            <Reveal delay={360}>
+              <p className="mx-auto mt-4 max-w-xl text-[15px] leading-[1.6] text-white/55">
+                No server. No database. This site is published as an immutable
+                blob on Walrus, owned by the Sui address below.
+              </p>
+            </Reveal>
 
-            {/* Blob ID as typographic hero */}
-            <div className="mx-auto mt-10 max-w-2xl">
+            {/* Owner address — single clickable hero */}
+            <Reveal delay={540} className="mx-auto mt-10 flex flex-col items-center">
               <div className="mb-3 font-mono text-[10.5px] uppercase tracking-[0.24em] text-white/35">
-                blob id
+                owner · sui address
               </div>
-              <div className="font-mono text-[clamp(18px,2.4vw,28px)] font-semibold tracking-[-0.01em] text-[color:var(--color-accent-2)]">
-                {chain.blobId}
+
+              <button
+                type="button"
+                onClick={copyAddress}
+                aria-label={copied ? "Address copied" : "Copy Sui address"}
+                title={chain.ownerAddress}
+                className={[
+                  "group relative inline-flex items-center gap-3 rounded-2xl border px-5 py-3 transition-all",
+                  copied
+                    ? "border-emerald-400/40 bg-emerald-400/[0.06]"
+                    : "border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.06]",
+                ].join(" ")}
+              >
+                <span className="font-mono text-[clamp(20px,2.6vw,30px)] font-semibold tracking-[-0.01em] text-[color:var(--color-accent-2)]">
+                  {chain.ownerAddressShort}
+                </span>
+                <span
+                  aria-hidden
+                  className={[
+                    "inline-flex h-6 w-6 items-center justify-center rounded-full border transition-colors",
+                    copied
+                      ? "border-emerald-400/40 text-emerald-300"
+                      : "border-white/15 text-white/50 group-hover:border-white/35 group-hover:text-white",
+                  ].join(" ")}
+                >
+                  {copied ? (
+                    <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
+                      <path
+                        d="M2.5 7.5L5.5 10.5L11.5 3.5"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  ) : (
+                    <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
+                      <rect
+                        x="4.5"
+                        y="4.5"
+                        width="7.5"
+                        height="7.5"
+                        rx="1.3"
+                        stroke="currentColor"
+                        strokeWidth="1.4"
+                      />
+                      <path
+                        d="M3 9.5V3.2A1.2 1.2 0 0 1 4.2 2h6.3"
+                        stroke="currentColor"
+                        strokeWidth="1.4"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  )}
+                </span>
+              </button>
+
+              <div
+                className={[
+                  "mt-2 font-mono text-[10.5px] uppercase tracking-[0.22em] transition-colors",
+                  copied ? "text-emerald-300" : "text-white/30",
+                ].join(" ")}
+                aria-live="polite"
+              >
+                {copied ? "copied to clipboard" : "click to copy full address"}
               </div>
-              <div className="mt-3 font-mono text-[12px] text-white/40">
-                {chain.hash}
-              </div>
-            </div>
+            </Reveal>
 
             {/* Verify CTA */}
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+            <Reveal delay={720} className="mt-10 flex flex-wrap items-center justify-center gap-3">
               <button
                 onClick={runVerify}
                 disabled={verifying || verified}
@@ -165,7 +248,7 @@ export default function ChainFooter() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2.5 text-[13px] text-white/75 transition-colors hover:border-white/25 hover:text-white"
               >
-                Open in Walruscan
+                Open in Suiscan
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                   <path
                     d="M3 9L9 3M9 3H4.5M9 3V7.5"
@@ -176,14 +259,14 @@ export default function ChainFooter() {
                   />
                 </svg>
               </a>
-            </div>
+            </Reveal>
 
             {/* Meta row */}
-            <div className="mx-auto mt-8 flex max-w-xl flex-wrap items-center justify-center gap-x-6 gap-y-2 font-mono text-[10.5px] uppercase tracking-[0.22em] text-white/35">
+            <Reveal delay={900} className="mx-auto mt-8 flex max-w-xl flex-wrap items-center justify-center gap-x-6 gap-y-2 font-mono text-[10.5px] uppercase tracking-[0.22em] text-white/35">
               <span>network · {chain.network}</span>
               <span>written · {chain.timestamp.slice(0, 10)}</span>
               <span>read-only</span>
-            </div>
+            </Reveal>
           </div>
 
           {/* Identity + socials */}
@@ -223,7 +306,6 @@ export default function ChainFooter() {
             {new Date().getFullYear()}
           </div>
         </GlassPanel>
-      </Reveal>
     </footer>
   );
 }

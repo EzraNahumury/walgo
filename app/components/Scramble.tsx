@@ -30,7 +30,7 @@ export default function Scramble({
 }: Props) {
   const [display, setDisplay] = useState(text);
   const ref = useRef<HTMLSpanElement>(null);
-  const startedRef = useRef(false);
+  const timeoutsRef = useRef<number[]>([]);
 
   useEffect(() => {
     setDisplay(initialScramble(text));
@@ -39,41 +39,60 @@ export default function Scramble({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    const clearAll = () => {
+      timeoutsRef.current.forEach((id) => clearTimeout(id));
+      timeoutsRef.current = [];
+    };
+
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {
-          if (!e.isIntersecting || startedRef.current) return;
-          startedRef.current = true;
-          setTimeout(() => {
-            let frame = 0;
-            const total = text.length + lockDelay + 4;
-            const tick = () => {
-              let out = "";
-              for (let i = 0; i < text.length; i++) {
-                if (text[i] === " ") {
-                  out += " ";
-                  continue;
+          if (e.isIntersecting) {
+            clearAll();
+            setDisplay(initialScramble(text));
+            const startId = window.setTimeout(() => {
+              let frame = 0;
+              const total = text.length + lockDelay + 4;
+              const tick = () => {
+                let out = "";
+                for (let i = 0; i < text.length; i++) {
+                  if (text[i] === " ") {
+                    out += " ";
+                    continue;
+                  }
+                  if (i < frame - lockDelay) {
+                    out += text[i];
+                  } else {
+                    out +=
+                      GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+                  }
                 }
-                if (i < frame - lockDelay) {
-                  out += text[i];
+                setDisplay(out);
+                frame++;
+                if (frame < total) {
+                  const id = window.setTimeout(tick, speed);
+                  timeoutsRef.current.push(id);
                 } else {
-                  out +=
-                    GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+                  setDisplay(text);
                 }
-              }
-              setDisplay(out);
-              frame++;
-              if (frame < total) setTimeout(tick, speed);
-              else setDisplay(text);
-            };
-            tick();
-          }, delay);
+              };
+              tick();
+            }, delay);
+            timeoutsRef.current.push(startId);
+          } else {
+            clearAll();
+            setDisplay(initialScramble(text));
+          }
         });
       },
       { threshold: 0.3 }
     );
     io.observe(el);
-    return () => io.disconnect();
+    return () => {
+      io.disconnect();
+      clearAll();
+    };
   }, [text, delay, speed, lockDelay]);
 
   return (

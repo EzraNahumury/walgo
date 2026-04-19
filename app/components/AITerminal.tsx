@@ -24,6 +24,17 @@ export default function AITerminal() {
   const { setFocus } = useFocus();
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const timeoutsRef = useRef<number[]>([]);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      timeoutsRef.current.forEach((id) => clearTimeout(id));
+      timeoutsRef.current = [];
+    };
+  }, []);
 
   const scrollBottom = () => {
     requestAnimationFrame(() => {
@@ -36,6 +47,14 @@ export default function AITerminal() {
   useEffect(() => {
     scrollBottom();
   }, [log]);
+
+  const schedule = (fn: () => void, delay: number) => {
+    const id = window.setTimeout(() => {
+      if (!mountedRef.current) return;
+      fn();
+    }, delay);
+    timeoutsRef.current.push(id);
+  };
 
   const typeOut = (ans: Answer) => {
     const entry: LogEntry = {
@@ -73,18 +92,20 @@ export default function AITerminal() {
           ans.lines[lineIdx]?.length && charIdx === 0
             ? 90
             : 7 + Math.random() * 12;
-        setTimeout(tick, delay);
+        schedule(tick, delay);
       } else {
         setBusy(false);
         scrollBottom();
       }
     };
 
-    setTimeout(tick, 260);
+    schedule(tick, 260);
   };
 
   const clear = () => {
     if (busy) return;
+    timeoutsRef.current.forEach((id) => clearTimeout(id));
+    timeoutsRef.current = [];
     setLog(initialLog);
     setQuery("");
     inputRef.current?.focus();
@@ -98,7 +119,7 @@ export default function AITerminal() {
     const ans = answer(q);
     setFocus(ans.focus);
     setLog((l) => [...l, { kind: "user", text: q }]);
-    setTimeout(() => typeOut(ans), 120);
+    schedule(() => typeOut(ans), 120);
   };
 
   return (

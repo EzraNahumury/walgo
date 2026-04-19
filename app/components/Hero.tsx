@@ -201,7 +201,7 @@ export default function Hero() {
             <Row k="role" v="Front-End Dev" />
             <Row k="loc" v={identity.location} />
             <Row k="status" v="Open to work" ok />
-            <Row k="motto" v={`"${identity.motto}"`} quiet />
+            <Row k="motto" v={`"${identity.motto}"`} quiet wrap />
           </dl>
 
           <div className="relative border-t border-white/5 px-5 py-3 font-mono text-[10.5px] uppercase tracking-[0.22em] text-white/35">
@@ -251,12 +251,14 @@ function Row({
   accent,
   ok,
   quiet,
+  wrap,
 }: {
   k: string;
   v: string;
   accent?: boolean;
   ok?: boolean;
   quiet?: boolean;
+  wrap?: boolean;
 }) {
   return (
     <>
@@ -265,7 +267,7 @@ function Row({
       </dt>
       <dd
         className={[
-          "truncate",
+          wrap ? "text-balance leading-[1.45]" : "truncate",
           accent
             ? "text-[color:var(--color-accent-2)]"
             : ok

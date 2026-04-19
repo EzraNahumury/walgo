@@ -21,13 +21,13 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "AI Identity Terminal — stored permanently on Walrus",
+  title: "Ez Identity",
   description:
-    "A living, on-chain personal identity. Built for Walrus Sessions 01.",
-  applicationName: "AI Identity Terminal",
-  authors: [{ name: "Identity Terminal" }],
+    "A living, on-chain personal identity by Ezra Kristanto Nahumury — stored permanently on Walrus.",
+  applicationName: "Ez Identity",
+  authors: [{ name: "Ezra Kristanto Nahumury" }],
   openGraph: {
-    title: "AI Identity Terminal",
+    title: "Ez Identity",
     description:
       "A living, on-chain personal identity. Stored permanently on Walrus.",
     type: "website",

@@ -18,8 +18,8 @@ export default function CountUp({
   className = "",
 }: Props) {
   const [value, setValue] = useState(0);
-  const startedRef = useRef(false);
   const ref = useRef<HTMLSpanElement>(null);
+  const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
     const el = ref.current;
@@ -27,24 +27,35 @@ export default function CountUp({
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {
-          if (e.isIntersecting && !startedRef.current) {
-            startedRef.current = true;
+          if (e.isIntersecting) {
+            if (rafRef.current !== null)
+              cancelAnimationFrame(rafRef.current);
             const start = performance.now();
             const tick = (t: number) => {
               const p = Math.min(1, (t - start) / duration);
               // easeOutCubic
               const eased = 1 - Math.pow(1 - p, 3);
               setValue(Math.round(to * eased));
-              if (p < 1) requestAnimationFrame(tick);
+              if (p < 1) rafRef.current = requestAnimationFrame(tick);
+              else rafRef.current = null;
             };
-            requestAnimationFrame(tick);
+            rafRef.current = requestAnimationFrame(tick);
+          } else {
+            if (rafRef.current !== null) {
+              cancelAnimationFrame(rafRef.current);
+              rafRef.current = null;
+            }
+            setValue(0);
           }
         });
       },
       { threshold: 0.5 }
     );
     io.observe(el);
-    return () => io.disconnect();
+    return () => {
+      io.disconnect();
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    };
   }, [to, duration]);
 
   return (

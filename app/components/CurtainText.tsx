@@ -32,7 +32,8 @@ export default function CurtainText({
         entries.forEach((e) => {
           if (e.isIntersecting) {
             el.classList.add("is-visible");
-            io.unobserve(el);
+          } else {
+            el.classList.remove("is-visible");
           }
         });
       },

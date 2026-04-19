@@ -128,8 +128,8 @@ const intents: Intent[] = [
       focus: "identity",
       lines: [
         `This identity is stored on ${identity.chain.network}.`,
-        `Blob ID   ${identity.chain.blobId}`,
-        `Hash      ${identity.chain.hash}`,
+        `Owner     ${identity.chain.ownerAddressShort}`,
+        `Address   ${identity.chain.ownerAddress}`,
         `Written   ${identity.chain.timestamp}`,
         "Read-only. Tamper-evident. No server required.",
       ],

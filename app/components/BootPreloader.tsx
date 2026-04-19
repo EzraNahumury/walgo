@@ -1,11 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { identity } from "../data/identity";
 
 const LINES = [
   "handshake · initializing",
+  "connecting to walrus mainnet",
+  "resolving on-chain owner",
   "decrypting identity blob",
   "verifying walrus signature",
+  "hydrating profile payload",
   "mounting terminal interface",
   "ready",
 ];
@@ -50,8 +54,9 @@ export default function BootPreloader() {
   useEffect(() => {
     if (!shouldRun) return;
     const start = performance.now();
-    const duration = 2400;
+    const duration = 5600;
     let raf = 0;
+    const timers: number[] = [];
 
     const tick = (t: number) => {
       const p = Math.min(1, (t - start) / duration);
@@ -72,13 +77,16 @@ export default function BootPreloader() {
         } catch {
           /* no-op */
         }
-        setTimeout(() => setExiting(true), 450);
-        setTimeout(() => setMounted(false), 1650);
+        timers.push(window.setTimeout(() => setExiting(true), 750));
+        timers.push(window.setTimeout(() => setMounted(false), 2150));
       }
     };
 
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      timers.forEach((id) => clearTimeout(id));
+    };
   }, [shouldRun]);
 
   if (!mounted) return null;
@@ -144,9 +152,9 @@ export default function BootPreloader() {
         </div>
 
         <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 font-mono text-[10px] uppercase tracking-[0.22em] text-white/25">
-          <span>network · walrus mainnet</span>
+          <span>network · {identity.chain.network.toLowerCase()}</span>
           <span>tls · 1.3</span>
-          <span>blob · 0xA91F…7E2D</span>
+          <span>owner · {identity.chain.ownerAddressShort}</span>
         </div>
       </div>
     </div>
